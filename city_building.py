@@ -1,7 +1,12 @@
 """
-city_building.py  –  blender city 02
+city_building.py  –  blender city 03
 
 Fractal building generator driven by soft archetype parameters.
+
+Fixes vs v02:
+- import bpy explicitly
+- floating L2: use world_top_z(parent_obj) directly — no longer inferred
+  from parent_scale, so non-uniform L1 scales can't throw off child Z
 
 Hierarchy
 ---------
@@ -13,6 +18,7 @@ Hierarchy
        └─ …
 """
 
+import bpy
 import random
 import math
 import city_config as cfg
@@ -29,9 +35,12 @@ def _spawn_children(parent_obj, parent_scale, depth, rng, params, building_idx, 
     """
     Recursively spawn children on top of parent_obj.
 
-    parent_scale : uniform float – effective world scale of the parent cube
+    parent_scale : uniform float used for drift + shrinkage calculations
     depth        : 1 = L2, 2 = L3
     params       : fully-resolved archetype param dict
+
+    Z position is always derived from world_top_z(parent_obj) directly
+    so non-uniform parent scales never cause floating children.
     """
     if depth > cfg.MAX_DEPTH:
         return
@@ -51,6 +60,7 @@ def _spawn_children(parent_obj, parent_scale, depth, rng, params, building_idx, 
         dx    = rng.uniform(-drift, drift)
         dy    = rng.uniform(-drift, drift)
 
+        # always read actual geometry – fixes floating with non-uniform parents
         top_z  = utils.world_top_z(parent_obj)
         z_lift = rng.uniform(params["z_lift_min"], params["z_lift_max"]) * parent_scale
         loc    = (
@@ -109,10 +119,11 @@ def generate_building(centre_x, centre_y, building_idx, archetype_name):
 
     # ── L1 – archetype shapes the seed cube ───────────────────────────────────
     lx, ly, lz = params["l1_scale"]
-    top_of_base = utils.world_top_z(base)
 
-    # effective uniform scale for recursion is the average of l1 dims
-    l1_uniform = (lx + ly + lz) / 3.0
+    # uniform scale passed to recursion: drives XY drift + child shrinkage
+    # Z position always uses world_top_z so this doesn't affect grounding
+    l1_uniform  = (lx + ly + lz) / 3.0
+    top_of_base = utils.world_top_z(base)
 
     l1_loc = (
         centre_x + rng.uniform(-0.15, 0.15),

@@ -1,12 +1,12 @@
 """
-main.py  –  blender city 02
+main.py  –  blender city 03
 Open in Blender's text editor, save the file, then press Run Script.
 All modules must be in the same folder as this file.
 """
 
+import bpy
 import os
 import sys
-import bpy
 
 # ── path resolution ───────────────────────────────────────────────────────────
 _dir = os.path.dirname(bpy.context.space_data.text.filepath)
@@ -27,4 +27,4 @@ for mod in (cfg, utils, building, grid):
 if __name__ == "__main__":
     utils.clear_scene()
     grid.generate_city()
-    print("blender city 02 – done.")
+    print("blender city 03 – done.")
