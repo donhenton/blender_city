@@ -1,5 +1,5 @@
 """
-city_utils.py  –  blender city 05
+city_utils.py  –  blender city 06
 Low-level Blender helpers.
 """
 
@@ -31,12 +31,11 @@ def ensure_material():
 # ── scene ─────────────────────────────────────────────────────────────────────
 
 def clear_scene():
-    """Remove all mesh objects and the maquette material from the scene."""
+    """Remove all mesh objects, text objects, and the maquette material."""
     bpy.ops.object.select_all(action="DESELECT")
     for obj in list(bpy.data.objects):
-        if obj.type == "MESH":
+        if obj.type in ("MESH", "FONT"):
             bpy.data.objects.remove(obj, do_unlink=True)
-    # clean up old material so colour changes in config take effect on re-run
     old = bpy.data.materials.get(_MAT_NAME)
     if old:
         bpy.data.materials.remove(old)
@@ -55,7 +54,6 @@ def add_cube(name, location=(0, 0, 0), scale=(1, 1, 1), rot_z_deg=0.0, parent=No
     obj.scale = scale
     obj.rotation_euler[2] = math.radians(rot_z_deg)
 
-    # assign shared material
     mat = ensure_material()
     if obj.data.materials:
         obj.data.materials[0] = mat
@@ -65,6 +63,35 @@ def add_cube(name, location=(0, 0, 0), scale=(1, 1, 1), rot_z_deg=0.0, parent=No
     if parent is not None:
         obj.parent = parent
         obj.matrix_parent_inverse = parent.matrix_world.inverted()
+
+    return obj
+
+
+# ── label ─────────────────────────────────────────────────────────────────────
+
+def add_label(text, centre_x, centre_y, building_idx):
+    """
+    Place a centred text object just below the base of a building.
+
+    Displays archetype name and building index, e.g. "spire · B03".
+    No material assigned — renders in default grey, reads clearly.
+    Faces the default Y-forward direction (visible from front/perspective).
+    """
+    import city_config as cfg
+
+    label_text = f"{text}  ·  B{building_idx:02d}"
+    y_offset   = -(cfg.BASE_SIZE[1] * 0.5 + 0.6)   # just south of the base
+
+    bpy.ops.object.text_add(location=(centre_x, centre_y + y_offset, 0.0))
+    obj      = bpy.context.active_object
+    obj.name = f"B{building_idx:02d}_label"
+
+    td = obj.data
+    td.body        = label_text
+    td.align_x     = "CENTER"
+    td.size        = 0.45
+    td.extrude     = 0.04    # slight depth so it catches light
+    td.bevel_depth = 0.01    # softens the edges a touch
 
     return obj
 

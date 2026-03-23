@@ -1,5 +1,5 @@
 """
-city_config.py  –  blender city 05
+city_config.py  –  blender city 06
 Base parameters plus soft archetype overrides.
 """
 

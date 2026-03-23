@@ -1,5 +1,5 @@
 """
-city_building.py  –  blender city 05
+city_building.py  –  blender city 06
 
 v05 additions:
   - podium  : a shaped cube between base and L1, grounding each building
