@@ -10,6 +10,12 @@ import math
 _MAT_NAME  = "maquette_blue"
 _MAT_COLOR = (0.55, 0.75, 0.92, 1.0)   # light blue RGBA
 
+def mark_freestyle_edges(obj):
+    """Mark all edges on obj for freestyle rendering."""
+    for edge in obj.data.edges:
+        edge.use_freestyle_mark = True
+
+
 
 def ensure_material():
     """
@@ -63,7 +69,8 @@ def add_cube(name, location=(0, 0, 0), scale=(1, 1, 1), rot_z_deg=0.0, parent=No
     if parent is not None:
         obj.parent = parent
         obj.matrix_parent_inverse = parent.matrix_world.inverted()
-
+        
+    mark_freestyle_edges(obj)
     return obj
 
 
