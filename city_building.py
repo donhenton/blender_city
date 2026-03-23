@@ -139,13 +139,13 @@ def _add_antenna(building_idx, archetype_name, rng, params):
 # main entry
 # ─────────────────────────────────────────────────────────────────────────────
 
-def generate_building(centre_x, centre_y, building_idx, archetype_name):
+def generate_building(centre_x, centre_y, building_idx, archetype_name,run_seed):
     """
     Build one fractal building centred at (centre_x, centre_y).
     Returns the base object.
     """
     params = cfg.get_params(archetype_name)
-    seed   = cfg.BASE_SEED + building_idx * 97
+    seed   = run_seed
     rng    = random.Random(seed)
 
     # ── base ──────────────────────────────────────────────────────────────────

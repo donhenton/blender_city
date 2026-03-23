@@ -7,6 +7,8 @@ All modules must be in the same folder as this file.
 import bpy
 import os
 import sys
+import random
+import time
 
 # ── path resolution ───────────────────────────────────────────────────────────
 _dir = os.path.dirname(bpy.context.space_data.text.filepath)
@@ -26,5 +28,8 @@ for mod in (cfg, utils, building, grid):
 # ── run ───────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     utils.clear_scene()
-    grid.generate_city()
+    run_seed = int(time.time())
+    # you can catch as value and replay by overriding run_seed
+    print(f"blender city 06 – run seed: {run_seed}")
+    grid.generate_city(run_seed)
     print("blender city 06 – done.")

@@ -15,7 +15,7 @@ BASE_SIZE    = (2.2, 2.2, 0.25)
 MAX_DEPTH    = 2          # L2 and L3
 
 # ── master seed ───────────────────────────────────────────────────────────────
-BASE_SEED    = 42         # change for a completely different sheet
+#SBASE_SEED    = 42         # change for a completely different sheet
 
 # ── default (fallback) parameters ────────────────────────────────────────────
 # These are used if an archetype doesn't override them.

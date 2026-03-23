@@ -8,7 +8,7 @@ import city_building as building
 import city_utils    as utils
 
 
-def generate_city():
+def generate_city(run_seed):
     """Generate GRID_ROWS × GRID_COLS archetype buildings with labels."""
     idx = 0
     for row in range(cfg.GRID_ROWS):
@@ -16,7 +16,7 @@ def generate_city():
             cx        = col * cfg.GRID_SPACING
             cy        = row * cfg.GRID_SPACING
             archetype = cfg.SLOT_ARCHETYPES[idx]
-            building.generate_building(cx, cy, idx, archetype)
+            building.generate_building(cx, cy, idx, archetype,run_seed)
             utils.add_label(archetype, cx, cy, idx)
             print(f"  [{idx+1}/9] {archetype} at ({cx:.1f}, {cy:.1f})")
             idx += 1
