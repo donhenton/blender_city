@@ -1,26 +1,25 @@
 """
-city_building.py  –  blender city 03
+city_building.py  –  blender city 04
 
 Fractal building generator driven by soft archetype parameters.
 
-Fixes vs v02:
-- import bpy explicitly
-- floating L2: use world_top_z(parent_obj) directly — no longer inferred
-  from parent_scale, so non-uniform L1 scales can't throw off child Z
+v04 change: children always intersect their parent by overlap_factor.
+Child Z centre is placed so that (overlap * child_half_z) is buried
+inside the parent. This eliminates all floating regardless of parent
+scale uniformity — no matrix or world_top_z calculation needed.
 
 Hierarchy
 ---------
   base  (platform)
-   └─ L1  (shaped by archetype l1_scale)
-       ├─ L2a … L2n   (sparse, archetype-biased)
-       │   └─ L3a …   (sparser still)
+   └─ L1  (shaped by archetype l1_scale, overlaps into base)
+       ├─ L2a … L2n   (sparse, overlap into L1)
+       │   └─ L3a …   (sparser, overlap into L2)
        ├─ L2b
        └─ …
 """
 
 import bpy
 import random
-import math
 import city_config as cfg
 import city_utils  as utils
 
@@ -33,14 +32,16 @@ def _pick_children(pool, rng):
 
 def _spawn_children(parent_obj, parent_scale, depth, rng, params, building_idx, node_path):
     """
-    Recursively spawn children on top of parent_obj.
+    Recursively spawn children intersecting parent_obj.
 
-    parent_scale : uniform float used for drift + shrinkage calculations
+    parent_scale : uniform float – drives XY drift and child shrinkage
     depth        : 1 = L2, 2 = L3
     params       : fully-resolved archetype param dict
 
-    Z position is always derived from world_top_z(parent_obj) directly
-    so non-uniform parent scales never cause floating children.
+    Z placement: child centre = parent centre + parent_half_z + child_half_z
+                               - (overlap * child_half_z * 2)
+    i.e. child rises above parent top by (1 - overlap) of its own height,
+    with the overlap fraction buried inside. Simple, robust, no matrix needed.
     """
     if depth > cfg.MAX_DEPTH:
         return
@@ -48,25 +49,31 @@ def _spawn_children(parent_obj, parent_scale, depth, rng, params, building_idx, 
     pool = params["children_d1"] if depth == 1 else params["children_d2"]
     n    = _pick_children(pool, rng)
 
+    parent_half_z = parent_scale * 0.5
+
     for i in range(n):
 
         # ── scale ─────────────────────────────────────────────────────────────
-        sf          = rng.uniform(params["scale_min"], params["scale_max"])
-        child_scale = parent_scale * sf
-        s           = (child_scale, child_scale, child_scale)
+        sf           = rng.uniform(params["scale_min"], params["scale_max"])
+        child_scale  = parent_scale * sf
+        child_half_z = child_scale * 0.5
 
-        # ── position ──────────────────────────────────────────────────────────
-        drift = parent_scale * params["xy_drift"]
-        dx    = rng.uniform(-drift, drift)
-        dy    = rng.uniform(-drift, drift)
+        # ── overlap placement ─────────────────────────────────────────────────
+        overlap   = params["overlap"]
+        drift     = parent_scale * params["xy_drift"]
+        dx        = rng.uniform(-drift, drift)
+        dy        = rng.uniform(-drift, drift)
 
-        # always read actual geometry – fixes floating with non-uniform parents
-        top_z  = utils.world_top_z(parent_obj)
-        z_lift = rng.uniform(params["z_lift_min"], params["z_lift_max"]) * parent_scale
-        loc    = (
+        # child centre: rise from parent centre to parent top, then overlap back
+        child_cz = (parent_obj.location.z
+                    + parent_half_z
+                    + child_half_z
+                    - (overlap * child_half_z * 2))
+
+        loc = (
             parent_obj.location.x + dx,
             parent_obj.location.y + dy,
-            top_z + child_scale * 0.5 + z_lift * 0.12,
+            child_cz,
         )
 
         # ── rotation ──────────────────────────────────────────────────────────
@@ -78,7 +85,7 @@ def _spawn_children(parent_obj, parent_scale, depth, rng, params, building_idx, 
         child = utils.add_cube(
             name      = label,
             location  = loc,
-            scale     = s,
+            scale     = (child_scale, child_scale, child_scale),
             rot_z_deg = rot_z,
             parent    = parent_obj,
         )
@@ -99,46 +106,44 @@ def _spawn_children(parent_obj, parent_scale, depth, rng, params, building_idx, 
 def generate_building(centre_x, centre_y, building_idx, archetype_name):
     """
     Build one fractal building centred at (centre_x, centre_y).
-
-    archetype_name : key into city_config.ARCHETYPES
     Returns the base object.
     """
     params = cfg.get_params(archetype_name)
-
-    # per-building reproducible seed
-    seed = cfg.BASE_SEED + building_idx * 97
-    rng  = random.Random(seed)
+    seed   = cfg.BASE_SEED + building_idx * 97
+    rng    = random.Random(seed)
 
     # ── base platform ─────────────────────────────────────────────────────────
     bx, by, bz = cfg.BASE_SIZE
+    base_cz    = bz * 0.5
     base = utils.add_cube(
         name     = f"B{building_idx:02d}_{archetype_name}_base",
-        location = (centre_x, centre_y, bz * 0.5),
+        location = (centre_x, centre_y, base_cz),
         scale    = cfg.BASE_SIZE,
     )
 
-    # ── L1 – archetype shapes the seed cube ───────────────────────────────────
+    # ── L1 – overlaps into base top ───────────────────────────────────────────
     lx, ly, lz = params["l1_scale"]
+    l1_overlap = params["l1_overlap"]
+    l1_half_z  = lz * 0.5
+    base_top   = base_cz + bz * 0.5
 
-    # uniform scale passed to recursion: drives XY drift + child shrinkage
-    # Z position always uses world_top_z so this doesn't affect grounding
-    l1_uniform  = (lx + ly + lz) / 3.0
-    top_of_base = utils.world_top_z(base)
-
-    l1_loc = (
-        centre_x + rng.uniform(-0.15, 0.15),
-        centre_y + rng.uniform(-0.15, 0.15),
-        top_of_base + lz * 0.5 + 0.05,
-    )
+    l1_cz  = base_top + l1_half_z - (l1_overlap * l1_half_z * 2)
     l1_rot = rng.uniform(-params["rot_z_max"] * 0.4, params["rot_z_max"] * 0.4)
 
     l1 = utils.add_cube(
         name      = f"B{building_idx:02d}_{archetype_name}_L1",
-        location  = l1_loc,
+        location  = (
+            centre_x + rng.uniform(-0.15, 0.15),
+            centre_y + rng.uniform(-0.15, 0.15),
+            l1_cz,
+        ),
         scale     = (lx, ly, lz),
         rot_z_deg = l1_rot,
         parent    = base,
     )
+
+    # uniform scale passed to recursion: drives drift + shrinkage
+    l1_uniform = (lx + ly + lz) / 3.0
 
     # ── L2 … L3 recursion ─────────────────────────────────────────────────────
     _spawn_children(

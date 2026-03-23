@@ -1,5 +1,5 @@
 """
-city_grid.py  –  blender city 03
+city_grid.py  –  blender city 04
 Stamps 9 buildings across a 3x3 grid, one archetype per slot.
 """
 
