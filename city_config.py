@@ -1,71 +1,59 @@
 """
-city_config.py  –  blender city 06
+city_config.py  –  blender city 07 radar
 Base parameters plus soft archetype overrides.
 """
 
 # ── grid / layout ─────────────────────────────────────────────────────────────
 GRID_ROWS    = 3
 GRID_COLS    = 3
-GRID_SPACING = 8.0        # world units between building centres
+GRID_SPACING = 8.0
 
-# ── base platform (half-extents for scale) ────────────────────────────────────
+# ── base platform ─────────────────────────────────────────────────────────────
 BASE_SIZE    = (2.2, 2.2, 0.25)
 
 # ── recursion ─────────────────────────────────────────────────────────────────
-MAX_DEPTH    = 2          # L2 and L3
+MAX_DEPTH    = 2
 
-# ── master seed ───────────────────────────────────────────────────────────────
-#SBASE_SEED    = 42         # change for a completely different sheet
-
-# ── default (fallback) parameters ────────────────────────────────────────────
-# These are used if an archetype doesn't override them.
+# ── default parameters ────────────────────────────────────────────────────────
 DEFAULTS = dict(
-    # L1 shape  (x, y, z scale multipliers – applied to a unit cube)
-    l1_scale        = (1.0,  1.0,  1.0),
-
-    # L1 overlap into podium top
+    l1_scale        = (1.0, 1.0, 1.0),
     l1_overlap      = 0.35,
-
-    # podium: (x, y, z) scale tuple, sits between base and L1
     podium_scale    = (1.6, 1.6, 0.5),
-    # podium overlap into base top
     podium_overlap  = 0.40,
-
-    # antenna: True = add a thin spire to the highest node after recursion
     antenna         = False,
-    # antenna height range (world units, seeded per building)
     antenna_h_min   = 0.8,
     antenna_h_max   = 1.4,
-    # antenna width (uniform XY)
     antenna_w       = 0.08,
-
-    # children per node at each depth
     children_d1     = [1, 2, 2, 3, 3],
     children_d2     = [0, 1, 1, 2],
-
-    # scale factor range (child relative to parent)
     scale_min       = 0.60,
     scale_max       = 0.70,
-
-    # overlap: fraction of child's Z half-height buried into parent top
     overlap         = 0.40,
-
-    # XY drift (fraction of parent scale)
     xy_drift        = 0.25,
-
-    # Z rotation max degrees
     rot_z_max       = 30.0,
+
+    # ── radar dish ────────────────────────────────────────────────────────────
+    # probability 0-1 that this building gets a dish
+    dish_probability = 0.45,
+    # dish bowl radius as fraction of host node scale
+    dish_radius_frac = 0.55,
+    # bowl depth (world units)
+    dish_depth       = 0.15,
+    # stem dimensions
+    dish_stem_w      = 0.06,
+    dish_stem_h      = 0.22,
+    # tilt range (degrees) applied to stem+bowl unit
+    dish_tilt_min    = 30.0,
+    dish_tilt_max    = 45.0,
 )
 
 # ── archetypes ────────────────────────────────────────────────────────────────
-# Each entry overrides only the keys it cares about.
-# Everything else falls back to DEFAULTS above.
 ARCHETYPES = {
 
     "spire": dict(
         l1_scale     = (0.7, 0.7, 2.2),
         l1_overlap   = 0.25,
-        podium_scale = (1.2, 1.2, 0.8),   # narrow tall podium
+        podium_scale = (1.2, 1.2, 0.8),
         podium_overlap = 0.35,
         antenna      = True,
         antenna_h_min = 1.2,
@@ -82,7 +70,7 @@ ARCHETYPES = {
     "ziggurat": dict(
         l1_scale     = (1.6, 1.6, 0.5),
         l1_overlap   = 0.40,
-        podium_scale = (2.0, 2.0, 0.35),  # wide flat podium
+        podium_scale = (2.0, 2.0, 0.35),
         podium_overlap = 0.45,
         antenna      = False,
         children_d1  = [2, 3, 3],
@@ -114,7 +102,7 @@ ARCHETYPES = {
     "slab": dict(
         l1_scale     = (2.0, 0.6, 1.2),
         l1_overlap   = 0.35,
-        podium_scale = (2.1, 0.9, 0.45),  # matches slab footprint
+        podium_scale = (2.1, 0.9, 0.45),
         podium_overlap = 0.40,
         antenna      = False,
         children_d1  = [1, 2, 2],
@@ -141,11 +129,11 @@ ARCHETYPES = {
         overlap      = 0.45,
         xy_drift     = 0.60,
         rot_z_max    = 45.0,
+        dish_probability = 0.65,   # wild gets more dishes
     ),
 }
 
 # ── 9-slot archetype assignment ───────────────────────────────────────────────
-# Two of each main type, one wild. Order = left-to-right, bottom-to-top in grid.
 SLOT_ARCHETYPES = [
     "spire",
     "ziggurat",
@@ -162,6 +150,6 @@ SLOT_ARCHETYPES = [
 def get_params(archetype_name):
     """Return a fully-resolved param dict for the given archetype."""
     overrides = ARCHETYPES.get(archetype_name, {})
-    params = dict(DEFAULTS)
+    params    = dict(DEFAULTS)
     params.update(overrides)
     return params

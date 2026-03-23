@@ -1,5 +1,5 @@
 """
-main.py  –  blender city 06
+main.py  –  blender city 07 radar
 Open in Blender's text editor, save the file, then press Run Script.
 All modules must be in the same folder as this file.
 """
@@ -7,8 +7,8 @@ All modules must be in the same folder as this file.
 import bpy
 import os
 import sys
-import random
 import time
+import random
 
 # ── path resolution ───────────────────────────────────────────────────────────
 _dir = os.path.dirname(bpy.context.space_data.text.filepath)
@@ -27,9 +27,8 @@ for mod in (cfg, utils, building, grid):
 
 # ── run ───────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    utils.clear_scene()
     run_seed = int(time.time())
-    # you can catch as value and replay by overriding run_seed
-    print(f"blender city 06 – run seed: {run_seed}")
+    print(f"blender city 07 radar – run seed: {run_seed}")
+    utils.clear_scene()
     grid.generate_city(run_seed)
-    print("blender city 06 – done.")
+    print("blender city 07 radar – done.")
