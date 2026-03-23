@@ -1,5 +1,5 @@
 """
-main.py  –  blender city 04
+main.py  –  blender city 05
 Open in Blender's text editor, save the file, then press Run Script.
 All modules must be in the same folder as this file.
 """
@@ -27,4 +27,4 @@ for mod in (cfg, utils, building, grid):
 if __name__ == "__main__":
     utils.clear_scene()
     grid.generate_city()
-    print("blender city 04 – done.")
+    print("blender city 05 – done.")
