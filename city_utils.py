@@ -57,6 +57,15 @@ def join_building(building_idx, archetype_name):
     joined      = bpy.context.active_object
     joined.name = f"B{building_idx:02d}_{archetype_name}"
 
+    with bpy.context.temp_override(
+        active_object    = joined,
+        object           = joined,
+        selected_objects = [joined],
+    ):
+        bpy.ops.object.transform_apply(
+            location=False, rotation=False, scale=True
+        )
+
     return joined
 
 def ensure_material():
