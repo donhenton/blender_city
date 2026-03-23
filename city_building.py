@@ -203,4 +203,8 @@ def generate_building(centre_x, centre_y, building_idx, archetype_name,run_seed)
     if params["antenna"]:
         _add_antenna(building_idx, archetype_name, rng, params)
 
+    joined = utils.join_building(building_idx, archetype_name)
+    if joined:
+        utils.set_origin_to_base(joined)
+        return joined
     return base

@@ -5,6 +5,7 @@ Low-level Blender helpers.
 
 import bpy
 import math
+import mathutils
 
 # ── material ──────────────────────────────────────────────────────────────────
 _MAT_NAME  = "maquette_blue"
@@ -15,7 +16,48 @@ def mark_freestyle_edges(obj):
     for edge in obj.data.edges:
         edge.use_freestyle_mark = True
 
+def set_origin_to_base(obj):
+    """
+    Set object origin to the centre of the lowest face (base of pedestal).
+    """
+    bbox_world = [obj.matrix_world @ mathutils.Vector(corner)
+                  for corner in obj.bound_box]
+    min_z = min(v.z for v in bbox_world)
 
+    origin = mathutils.Vector((
+        obj.location.x,
+        obj.location.y,
+        min_z,
+    ))
+
+    # translate the mesh data by the inverse offset
+    offset = obj.matrix_world.inverted() @ origin
+    obj.data.transform(mathutils.Matrix.Translation(-offset))
+    obj.location = origin
+
+def join_building(building_idx, archetype_name):
+    """
+    Join all mesh objects belonging to this building into one object.
+    Returns the joined object or None if no members found.
+    """
+    prefix  = f"B{building_idx:02d}_"
+    members = [o for o in bpy.data.objects
+               if o.name.startswith(prefix) and o.type == "MESH"]
+
+    if not members:
+        return None
+
+    bpy.ops.object.select_all(action="DESELECT")
+    for obj in members:
+        obj.select_set(True)
+    bpy.context.view_layer.objects.active = members[0]
+
+    bpy.ops.object.join()
+
+    joined      = bpy.context.active_object
+    joined.name = f"B{building_idx:02d}_{archetype_name}"
+
+    return joined
 
 def ensure_material():
     """
