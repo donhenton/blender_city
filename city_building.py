@@ -1,9 +1,10 @@
 """
-city_building.py  –  blender city 06
+city_building.py  –  blender city 07
 
-v05 additions:
-  - podium  : a shaped cube between base and L1, grounding each building
-  - antenna : thin vertical spire placed on the highest node post-recursion
+v07 addition:
+  - boolean cylinder cutouts applied as final post-pass per building
+    via city_boolean.apply_boolean_cuts()
+    Comment out that single call to pull the feature entirely.
 
 Hierarchy
 ---------
@@ -13,13 +14,15 @@ Hierarchy
            ├─ L2a … L2n
            │   └─ L3a …
            └─ …
-  antenna     (parented to highest node, overlaps slightly)
+  antenna     (parented to highest node)
+  [boolean cuts applied last]
 """
 
 import bpy
 import random
-import city_config as cfg
-import city_utils  as utils
+import city_config  as cfg
+import city_utils   as utils
+import city_boolean as booleans
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -202,5 +205,8 @@ def generate_building(centre_x, centre_y, building_idx, archetype_name):
     # ── antenna (optional, post-recursion) ────────────────────────────────────
     if params["antenna"]:
         _add_antenna(building_idx, archetype_name, rng, params)
+
+    # ── boolean cylinder cuts (post-pass — comment out to disable) ────────────
+    booleans.apply_boolean_cuts(building_idx, archetype_name, rng, params)
 
     return base

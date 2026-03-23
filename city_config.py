@@ -1,5 +1,5 @@
 """
-city_config.py  –  blender city 06
+city_config.py  –  blender city 07
 Base parameters plus soft archetype overrides.
 """
 
@@ -55,6 +55,14 @@ DEFAULTS = dict(
 
     # Z rotation max degrees
     rot_z_max       = 30.0,
+
+    # ── boolean cylinder cuts ─────────────────────────────────────────────────
+    # pool to draw cut count from per building
+    cut_count_pool  = [2, 2, 3, 3, 4],
+    # cylinder radius as fraction of target's smallest scale dimension
+    cut_radius_frac = 0.20,
+    # max angle deviation from a chosen axis (degrees) – higher = more alien
+    cut_angle_max   = 60.0,
 )
 
 # ── archetypes ────────────────────────────────────────────────────────────────
@@ -65,7 +73,7 @@ ARCHETYPES = {
     "spire": dict(
         l1_scale     = (0.7, 0.7, 2.2),
         l1_overlap   = 0.25,
-        podium_scale = (1.2, 1.2, 0.8),   # narrow tall podium
+        podium_scale = (1.2, 1.2, 0.8),
         podium_overlap = 0.35,
         antenna      = True,
         antenna_h_min = 1.2,
@@ -77,12 +85,15 @@ ARCHETYPES = {
         overlap      = 0.25,
         xy_drift     = 0.10,
         rot_z_max    = 15.0,
+        cut_count_pool  = [1, 2, 2],       # fewer, finer cuts
+        cut_radius_frac = 0.15,
+        cut_angle_max   = 45.0,
     ),
 
     "ziggurat": dict(
         l1_scale     = (1.6, 1.6, 0.5),
         l1_overlap   = 0.40,
-        podium_scale = (2.0, 2.0, 0.35),  # wide flat podium
+        podium_scale = (2.0, 2.0, 0.35),
         podium_overlap = 0.45,
         antenna      = False,
         children_d1  = [2, 3, 3],
@@ -92,6 +103,9 @@ ARCHETYPES = {
         overlap      = 0.55,
         xy_drift     = 0.15,
         rot_z_max    = 20.0,
+        cut_count_pool  = [2, 3, 3, 4],   # more cuts through wide masses
+        cut_radius_frac = 0.22,
+        cut_angle_max   = 40.0,
     ),
 
     "crown": dict(
@@ -109,12 +123,15 @@ ARCHETYPES = {
         overlap      = 0.35,
         xy_drift     = 0.50,
         rot_z_max    = 35.0,
+        cut_count_pool  = [2, 3, 3],
+        cut_radius_frac = 0.18,
+        cut_angle_max   = 70.0,            # dramatic angles for crown
     ),
 
     "slab": dict(
         l1_scale     = (2.0, 0.6, 1.2),
         l1_overlap   = 0.35,
-        podium_scale = (2.1, 0.9, 0.45),  # matches slab footprint
+        podium_scale = (2.1, 0.9, 0.45),
         podium_overlap = 0.40,
         antenna      = False,
         children_d1  = [1, 2, 2],
@@ -124,6 +141,9 @@ ARCHETYPES = {
         overlap      = 0.40,
         xy_drift     = 0.30,
         rot_z_max    = 25.0,
+        cut_count_pool  = [2, 2, 3],
+        cut_radius_frac = 0.20,
+        cut_angle_max   = 50.0,
     ),
 
     "wild": dict(
@@ -141,6 +161,9 @@ ARCHETYPES = {
         overlap      = 0.45,
         xy_drift     = 0.60,
         rot_z_max    = 45.0,
+        cut_count_pool  = [3, 4, 4, 5],   # maximum chaos
+        cut_radius_frac = 0.25,
+        cut_angle_max   = 90.0,            # fully random orientation
     ),
 }
 

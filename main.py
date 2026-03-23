@@ -1,5 +1,5 @@
 """
-main.py  –  blender city 06
+main.py  –  blender city 07
 Open in Blender's text editor, save the file, then press Run Script.
 All modules must be in the same folder as this file.
 """
@@ -17,14 +17,15 @@ if _dir not in sys.path:
 import importlib
 import city_config   as cfg
 import city_utils    as utils
+import city_boolean  as booleans
 import city_building as building
 import city_grid     as grid
 
-for mod in (cfg, utils, building, grid):
+for mod in (cfg, utils, booleans, building, grid):
     importlib.reload(mod)
 
 # ── run ───────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     utils.clear_scene()
     grid.generate_city()
-    print("blender city 06 – done.")
+    print("blender city 07 – done.")
