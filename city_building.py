@@ -145,7 +145,7 @@ def generate_building(centre_x, centre_y, building_idx, archetype_name,run_seed)
     Returns the base object.
     """
     params = cfg.get_params(archetype_name)
-    seed   = run_seed + building_idx * 97
+    seed   = run_seed 
     rng    = random.Random(seed)
 
     # ── base ──────────────────────────────────────────────────────────────────
