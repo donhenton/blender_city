@@ -1,5 +1,5 @@
 """
-city_utils.py  –  blender city 06
+city_utils.py  –  blender city 11
 Low-level Blender helpers.
 """
 
@@ -9,12 +9,14 @@ import mathutils
 
 # ── material ──────────────────────────────────────────────────────────────────
 _MAT_NAME  = "maquette_blue"
-_MAT_COLOR = (0.25, 0.55, 0.92, 1.0)   # light blue RGBA
+_MAT_COLOR = (0.25, 0.55, 0.92, 1.0)
+
 
 def mark_freestyle_edges(obj):
     """Mark all edges on obj for freestyle rendering."""
     for edge in obj.data.edges:
         edge.use_freestyle_mark = True
+
 
 def set_origin_to_base(obj):
     """
@@ -30,10 +32,10 @@ def set_origin_to_base(obj):
         min_z,
     ))
 
-    # translate the mesh data by the inverse offset
     offset = obj.matrix_world.inverted() @ origin
     obj.data.transform(mathutils.Matrix.Translation(-offset))
     obj.location = origin
+
 
 def join_building(building_idx, archetype_name):
     """
@@ -68,10 +70,10 @@ def join_building(building_idx, archetype_name):
 
     return joined
 
+
 def ensure_material():
     """
     Return the shared maquette material, creating it once if needed.
-    Uses nodes / principled BSDF so it responds to Blender lighting.
     """
     mat = bpy.data.materials.get(_MAT_NAME)
     if mat is None:
@@ -102,7 +104,7 @@ def clear_scene():
 
 def add_cube(name, location=(0, 0, 0), scale=(1, 1, 1), rot_z_deg=0.0, parent=None):
     """
-    Add a unit cube with the given world transform and assign the shared material.
+    Add a unit cube, assign shared material, mark freestyle edges.
     Returns the new object.
     """
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=location)
@@ -120,7 +122,7 @@ def add_cube(name, location=(0, 0, 0), scale=(1, 1, 1), rot_z_deg=0.0, parent=No
     if parent is not None:
         obj.parent = parent
         obj.matrix_parent_inverse = parent.matrix_world.inverted()
-        
+
     mark_freestyle_edges(obj)
     return obj
 
@@ -130,15 +132,11 @@ def add_cube(name, location=(0, 0, 0), scale=(1, 1, 1), rot_z_deg=0.0, parent=No
 def add_label(text, centre_x, centre_y, building_idx):
     """
     Place a centred text object just below the base of a building.
-
-    Displays archetype name and building index, e.g. "spire · B03".
-    No material assigned — renders in default grey, reads clearly.
-    Faces the default Y-forward direction (visible from front/perspective).
     """
     import city_config as cfg
 
     label_text = f"{text}  ·  B{building_idx:02d}"
-    y_offset   = -(cfg.BASE_SIZE[1] * 0.5 + 0.6)   # just south of the base
+    y_offset   = -(cfg.BASE_SIZE[1] * 0.5 + 0.6)
 
     bpy.ops.object.text_add(location=(centre_x, centre_y + y_offset, 0.0))
     obj      = bpy.context.active_object
@@ -148,8 +146,8 @@ def add_label(text, centre_x, centre_y, building_idx):
     td.body        = label_text
     td.align_x     = "CENTER"
     td.size        = 0.45
-    td.extrude     = 0.04    # slight depth so it catches light
-    td.bevel_depth = 0.01    # softens the edges a touch
+    td.extrude     = 0.04
+    td.bevel_depth = 0.01
 
     return obj
 
@@ -157,8 +155,5 @@ def add_label(text, centre_x, centre_y, building_idx):
 # ── geometry ──────────────────────────────────────────────────────────────────
 
 def world_top_z(obj):
-    """
-    World-space Z of the top face of a cube, using the object's actual Z scale.
-    Cube local geometry spans -0.5 to +0.5 before scale.
-    """
+    """World-space Z of the top face of a cube."""
     return obj.location.z + abs(obj.scale[2]) * 0.5

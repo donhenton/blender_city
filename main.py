@@ -1,9 +1,8 @@
 """
-main.py  –  blender city 06
+main.py  –  blender city 11
 Open in Blender's text editor, save the file, then press Run Script.
 All modules must be in the same folder as this file.
 """
-
 import bpy
 import os
 import sys
@@ -29,8 +28,7 @@ for mod in (cfg, utils, building, grid):
 if __name__ == "__main__":
     utils.clear_scene()
     run_seed = int(time.time())
-    # you can catch as value and replay by overriding run_seed
-    print(f"blender city 06 – run seed: {run_seed}")
+    print(f"blender city 11 – run seed: {run_seed}")
     #grid.generate_city(run_seed)
     grid.generate_individual_groups("my_spire")
-    print("blender city 06 – done.")
+    print("blender city 11 – done.")
