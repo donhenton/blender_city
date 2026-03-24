@@ -31,5 +31,6 @@ if __name__ == "__main__":
     run_seed = int(time.time())
     # you can catch as value and replay by overriding run_seed
     print(f"blender city 06 – run seed: {run_seed}")
-    grid.generate_city(run_seed)
+    #grid.generate_city(run_seed)
+    grid.generate_individual_groups("my_spire")
     print("blender city 06 – done.")

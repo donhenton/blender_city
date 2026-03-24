@@ -9,7 +9,7 @@ import mathutils
 
 # ── material ──────────────────────────────────────────────────────────────────
 _MAT_NAME  = "maquette_blue"
-_MAT_COLOR = (0.55, 0.75, 0.92, 1.0)   # light blue RGBA
+_MAT_COLOR = (0.25, 0.55, 0.92, 1.0)   # light blue RGBA
 
 def mark_freestyle_edges(obj):
     """Mark all edges on obj for freestyle rendering."""

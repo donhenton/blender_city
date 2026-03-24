@@ -78,6 +78,26 @@ ARCHETYPES = {
         xy_drift     = 0.10,
         rot_z_max    = 15.0,
     ),
+    
+     "my_spire": dict(
+        l1_scale     = (0.7, 0.7, 3.2),
+        l1_overlap   = 0.25,
+        podium_scale = (1.2, 1.2, 0.8),   # narrow tall podium
+        podium_overlap = 0.35,
+        antenna      = False,
+        antenna_h_min = 1.2,
+        antenna_h_max = 2.0,
+        children_d1  = [1, 2, 2, 3],
+        children_d2  = [1, 1, 1],
+        scale_min    = 0.20,
+        scale_max    = 0.62,
+        overlap      = 0.1,
+        xy_drift     = 0.2,
+        rot_z_max    = 15.0,
+    ),
+
+    
+    
 
     "ziggurat": dict(
         l1_scale     = (1.6, 1.6, 0.5),

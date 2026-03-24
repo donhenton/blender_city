@@ -6,6 +6,7 @@ Stamps 9 buildings across a 3x3 grid, one archetype per slot.
 import city_config   as cfg
 import city_building as building
 import city_utils    as utils
+import time
 
 
 def generate_city(run_seed):
@@ -19,6 +20,24 @@ def generate_city(run_seed):
             building.generate_building(cx, cy, idx, archetype,run_seed)
             utils.add_label(archetype, cx, cy, idx)
             print(f"  [{idx+1}/9] {archetype} at ({cx:.1f}, {cy:.1f})")
+            idx += 1
+
+    print(f"Done – {idx} buildings placed.")
+
+
+
+def generate_individual_groups(archetype):
+    """Generate GRID_ROWS × GRID_COLS archetype buildings with labels."""
+    idx = 0
+    for row in range(5):
+        for col in range(5):
+            cx        = col * cfg.GRID_SPACING
+            cy        = row * cfg.GRID_SPACING
+           
+            run_seed = idx
+            building.generate_building(cx, cy, idx, archetype,run_seed)
+            #utils.add_label(archetype, cx, cy, idx)
+            print(f"  [{idx+1}/9] {run_seed} {archetype} at ({cx:.1f}, {cy:.1f})")
             idx += 1
 
     print(f"Done – {idx} buildings placed.")
